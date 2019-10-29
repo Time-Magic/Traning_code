@@ -18,11 +18,15 @@ fig = plt.figure()
 ax = fig.add_subplot(121, projection='3d')
 ax.scatter(iris_x[:, 0], iris_x[:, 1], iris_x[:, 2], marker='o', c=iris_y)
 x_tran, x_test, y_tran, y_test = train_test_split(iris_x, iris_y, test_size=0.3, random_state=42)
-clf = RidgeClassifier(alpha=0.5).fit(x_tran, y_tran)
-y_pre = clf.predict(x_test)
-yx = fig.add_subplot(122)
-yx.scatter(y_test, y_pre, marker='o')
-plt.show()
-result = clf.score(x_test, y_test)
+result = {}
+for i in range(1, 11, 1):
+    clf = RidgeClassifier(alpha=i / 10).fit(x_tran, y_tran)
+    y_pre = clf.predict(x_test)
+    result[i] = clf.score(x_test, y_test)
+    """
+    yx = fig.add_subplot(122)
+    yx.scatter(y_test, y_pre, marker='o')
+    plt.show()
+    """
 print(result)
 # TODO:整理为函数或类形式。
