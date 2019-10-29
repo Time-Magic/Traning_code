@@ -25,3 +25,4 @@ yx.scatter(y_test, y_pre, marker='o')
 plt.show()
 result = clf.score(x_test, y_test)
 print(result)
+# TODO:整理为函数或类形式。

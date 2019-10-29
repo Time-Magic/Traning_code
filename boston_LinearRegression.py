@@ -27,3 +27,4 @@ picture_boston_LinearRegression = plt.figure()
 subpic_boston_LinearRegression = picture_boston_LinearRegression.add_subplot(111)
 subpic_boston_LinearRegression.scatter(boston_y_test, boston_y_pretict)  # 绘制预测实际价格参数
 plt.show()
+# todo:使用聚类法整理原始数据，剔除一些异常数据信息
