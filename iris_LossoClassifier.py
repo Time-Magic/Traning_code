@@ -23,7 +23,7 @@ test_number = len(y_test)
 for i in range(1, 11, 1):
     clf = Lasso(alpha=i / 10).fit(x_tran, y_tran)
     y_pre = clf.predict(x_test)
-    result[i] = sum(m < 0.5 for m in abs(y_test - y_pre)) / test_number
+    result[i / 10] = sum(m < 0.5 for m in abs(y_test - y_pre)) / test_number
 print(result)
 ax.plot(list(result.keys()), list(result.values()))
 plt.show()
