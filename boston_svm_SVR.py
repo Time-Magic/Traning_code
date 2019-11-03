@@ -37,9 +37,12 @@ X, Y = np.meshgrid(x / 10, y / 10)
 ax.plot_surface(X, Y, z, cmap=cm.coolwarm)
 ax.set_zlim(0, 1)
 ax.zaxis.set_major_locator(LinearLocator(5))
-
+ax.set_zlabel('Z')
+plt.title('Boston.SVR')
+plt.xlabel('C')
+plt.ylabel('epsilon')
 plt.show()
 
 # TODO:整理为函数或类形式。
-#  ElasticNet回归在此算例中呈现预测值形式
-#  由于Elastic具有两个参数，未来需要在程序上进行两个参数方面的调参并给出相关结论。
+#  由于SCR具有两个自由参数C及epsilon，未来需要在程序上进行两个参数方面的调参并给出相关结论
+#  波士顿房价数据集是一定需要清晰的，预测问题太差了.
