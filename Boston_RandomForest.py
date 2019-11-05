@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_boston
 from sklearn.decomposition import PCA
-from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing.data import StandardScaler
 
@@ -18,11 +18,11 @@ print(dimesionpower)
 boston_x_train, boston_x_test, boston_y_train, boston_y_test = train_test_split(boston_x, boston_y, test_size=0.3,
                                                                                 random_state=42)
 result = {
-    i: MLPRegressor(hidden_layer_sizes=(i * 3, i * 2, i * 1), max_iter=5000).fit(boston_x_train, boston_y_train).score(
+    i: RandomForestRegressor(n_estimators=i * 10).fit(boston_x_train, boston_y_train).score(
         boston_x_test, boston_y_test) for i in
-    range(1, 11, 1)}
+    range(1, 21, 1)}
 print(result)
 plt.plot(list(result.keys()), list(result.values()))
 plt.show()
-# todo:使用神经网络来看，随着模增大，效果先好后坏，在充分训练的情况下，神经网络的规模是要减小的。但是很奇怪，却并不很快
-#  下降同时，神经网络的效果是要相对好于传统模型的。
+# todo:修改为函数或模型
+# 随机森林的预测效果较好，至少是比传统的线性预测较好，具体提升可能需要进一步清洗数据集才可以实现。
