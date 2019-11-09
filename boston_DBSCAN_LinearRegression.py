@@ -4,25 +4,35 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing.data import StandardScaler
 from sklearn.cluster import DBSCAN
+from sklearn.linear_model import LinearRegression
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from likeplotfunctions import plot3d
+from sklearn.datasets
 
 bostondata = load_boston()
 boston_X = bostondata.data
 boston_y = bostondata.target
 scale = StandardScaler()
-scale.fit(boston_X)
-boston_x = scale.transform(boston_X)
+boston_full = np.c_[boston_X, boston_y]
+scale.fit(boston_full)
+boston_full = scale.transform(boston_full)
 pca = PCA(n_components=3)
-boston_full = np.c_[boston_x, boston_y]
 boston_full3 = pca.fit_transform(boston_full)
-clt = DBSCAN()
+clt = DBSCAN(eps=0.8, min_samples=5, n_jobs=4)
 label3 = clt.fit_predict(X=boston_full3)
-fig = plt.figure()
-ax = plt.gca(projection='3d')
-ax.scatter(boston_full3[:, 0], boston_full3[:, 1], boston_full3[:, 2], marker='o', c=label3)
-plt.show()
+plot3d(boston_full3, label3)
+group0_boston = boston_full[label3 == 0]
+x_boston = group0_boston[:, 0:-2]
+y_boston = group0_boston[:, -1]
+x_train, x_test, y_train, y_test = train_test_split(x_boston, y_boston, random_state=55, test_size=0.2)
+clf = LinearRegression(n_jobs=4).fit(x_train, y_train)
+print(clf.score(x_test, y_test))
+
+
+
+
 '''
 x_tran, x_test, y_tran, y_test = train_test_split(boston_x, boston_y, test_size=0.3, random_state=42)
 result = []
