@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing.data import StandardScaler
-from dataprepare import boston_DBSCAN
+from BOSTON.dataprepare import boston_DBSCAN
 
 boston_x, boston_y = boston_DBSCAN()
 pca = PCA(n_components=2)  # 二维降维

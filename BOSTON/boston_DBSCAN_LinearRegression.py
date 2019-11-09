@@ -1,15 +1,6 @@
-import matplotlib.pyplot as plt
-from sklearn.datasets import load_boston
-from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing.data import StandardScaler
-from sklearn.cluster import DBSCAN
 from sklearn.linear_model import LinearRegression
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from likeplotfunctions import plot3d
-from dataprepare import boston_DBSCAN
+from BOSTON.dataprepare import boston_DBSCAN
 
 x_boston, y_boston = boston_DBSCAN()
 x_train, x_test, y_train, y_test = train_test_split(x_boston, y_boston, random_state=55, test_size=0.25)
