@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def plot_func_region(x, flag, pre_func):
     x1_min, x1_max = x[:, 0].min() - .5, x[:, 0].max() + .5
     x2_min, x2_max = x[:, 1].min() - .5, x[:, 1].max() + .5
