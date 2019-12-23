@@ -4,6 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing.data import StandardScaler
 from sklearn import svm
+from sklearn.svm import SVC
 from likefunctions import plot_func_region
 
 irisdata = load_iris()

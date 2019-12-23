@@ -264,6 +264,8 @@ def XGBoost_learning_time_100_random(learning_rate=0.1):
 
 def plot_area(x_train, x_test, y_test, predict):
     from sklearn.decomposition import PCA
+    plt.rc('font', family='Times New Roman')
+    plt.figure(dpi=300)
     dcp = PCA(n_components=2)
     dcp.fit(x_train)
     x_test2 = dcp.transform(x_test)
@@ -273,5 +275,63 @@ def plot_area(x_train, x_test, y_test, predict):
     xx, xy = np.meshgrid(np.arange(x1_min, x1_max, h), np.arange(x2_min, x2_max, h))
     Z = predict(dcp.inverse_transform(np.c_[xx.ravel(), xy.ravel()]))
     z = Z.reshape(xx.shape)
-    plt.contourf(xx, xy, z, cmap=plt.cm.Spectral)
+    plt.contourf(xx, xy, z, cmap=plt.cm.Spectral, alpha=0.5)
     plt.scatter(x_test2[:, 0], x_test2[:, 1], c=y_test, cmap=plt.cm.Spectral)
+
+
+def svc_C_random_100(C=1):
+    from sklearn.svm import SVC
+    import numpy as np
+    result = np.zeros((100))
+    result_train = np.zeros((100))
+    for i in range(100):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = SVC(C=C, kernel='linear')
+        clf.fit(x_train, y_train)
+        result[i] = (clf.score(x_test, y_test))
+        result_train[i] = (clf.score(x_train, y_train))
+    return result, result_train
+
+
+def svc_kernel_random_100(kernel='rgf'):
+    from sklearn.svm import SVC
+    import numpy as np
+    result = np.zeros((100))
+    result_train = np.zeros((100))
+    for i in range(100):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = SVC(kernel=kernel, class_weight='balanced', C=1000000)
+        clf.fit(x_train, y_train)
+        result[i] = (clf.score(x_test, y_test))
+        result_train[i] = (clf.score(x_train, y_train))
+    return result, result_train
+
+
+def svc_linear_random_100(C=1):
+    from sklearn.svm import LinearSVC
+    import numpy as np
+    result = np.zeros((100))
+    result_train = np.zeros((100))
+    for i in range(100):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = LinearSVC(class_weight='balanced', C=C, max_iter=10000000, penalty='l2', multi_class='crammer_singer')
+        clf.fit(x_train, y_train)
+        result[i] = (clf.score(x_test, y_test))
+        result_train[i] = (clf.score(x_train, y_train))
+    return result, result_train
+
+
+def mlp_layer_random_100(L=3):
+    from sklearn.neural_network import MLPClassifier
+    import numpy as np
+    number = 10
+    result = np.zeros((number))
+    result_train = np.zeros((number))
+    layer = [int(6 * 1.2 ** i) for i in range(L)]
+    for i in range(number):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = MLPClassifier(hidden_layer_sizes=layer, max_iter=100000)
+        clf.fit(x_train, y_train)
+        result[i] = (clf.score(x_test, y_test))
+        result_train[i] = (clf.score(x_train, y_train))
+    return result, result_train
