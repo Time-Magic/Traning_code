@@ -357,12 +357,44 @@ def mlp_solver_time_random_100(solver='lbfgs'):
     from sklearn.neural_network import MLPClassifier
     import numpy as np
     import time
-    number = 100
+    number = 10
     layer = [int(6 * 1.2 ** i) for i in range(4)]
     start = time.perf_counter()
     for i in range(number):
         x_train, x_test, y_train, y_test = spl_and_Std()
         clf = MLPClassifier(hidden_layer_sizes=layer, max_iter=100000, solver=solver)
+        clf.fit(x_train, y_train)
+    end = time.perf_counter()
+    cost = end - start
+    return (cost / number)
+
+
+def mlp_activitor_100(activitor='relu'):
+    from sklearn.neural_network import MLPClassifier
+    import numpy as np
+    number = 100
+    result = np.zeros((number))
+    result_train = np.zeros((number))
+    layer = [int(6 * 1.2 ** i) for i in range(4)]
+    for i in range(number):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = MLPClassifier(hidden_layer_sizes=layer, max_iter=100000, activation=activitor)
+        clf.fit(x_train, y_train)
+        result[i] = (clf.score(x_test, y_test))
+        result_train[i] = (clf.score(x_train, y_train))
+    return result, result_train
+
+
+def mlp_activator_time_random_100(activitor='relu'):
+    from sklearn.neural_network import MLPClassifier
+    import numpy as np
+    import time
+    number = 10
+    layer = [int(6 * 1.2 ** i) for i in range(4)]
+    start = time.perf_counter()
+    for i in range(number):
+        x_train, x_test, y_train, y_test = spl_and_Std()
+        clf = MLPClassifier(hidden_layer_sizes=layer, max_iter=100000, activation=activitor, solver='adam')
         clf.fit(x_train, y_train)
     end = time.perf_counter()
     cost = end - start
