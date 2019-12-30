@@ -1,11 +1,11 @@
 from sklearn.datasets import load_digits
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression, RidgeClassifier, Lasso, ElasticNet
-from sklearn.neural_network import MLPClassifier
-from sklearn.tree import DecisionTreeClassifier
-from xgboost import XGBClassifier
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import ParameterGrid, GridSearchCV
+import numpy as np
+from likefunctions_boston import plotlikeconfig
+from pandas import DataFrame
+from matplotlib import pyplot as plt
 
 class DigitEnsembleClassifier():
     '''手写数据集集成分类器对象
@@ -20,74 +20,94 @@ class DigitEnsembleClassifier():
     random_seed:int
     指定处理过程中的随机种子
 
+    paramset:dic
+    指定模型中规定的参数，将被传进分类器初始化中,采用字典型
+
     :returns
 
     Classifier:object
-    一个集成了多种算法的手写数据集分类器
+    一个集成了多种算法实现的手写数据集分类器
     '''
 
-    def __init__(self, model='LogisticRegression', split_ratio=0.25, random_seed=42):
+    def __init__(self, model, paramset='', cv=3):
         '''导入数据并格式化为可用的数据形式'''
         self.model = model
         self.x = load_digits()['data']
         self.y = load_digits()['target']
-        self.split_ratio = split_ratio
-        self.random_seed = random_seed
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(self.x, self.y)
+        self.param = paramset
+        self.cv = cv
+        self.normal()
+        self.statu = 1
+        if self.statu != 0:
+            self.fit()
 
     def normal(self):
         '''数据预处理部分'''
-        pass
+        std = StandardScaler()
+        std.fit_transform(self.x)
 
-    def LR(self):
-        '''逻辑回归处理'''
-        self.clf = LogisticRegression(random_state=self.random_seed, solver='sag', multi_class='multinomial', n_jobs=4,
-                                      max_iter=1000).fit(self.x_train, self.y_train)
-        self.fitscore()
+    def fit(self):
+        '''该函数用于创建模型并进行调参拟合'''
+        self.clf = GridSearchCV(self.model, self.param, cv=self.cv, return_train_score=True, error_score=0, n_jobs=-1)
+        self.clf.fit(self.x, self.y)
+        self.result = self.clf.cv_results_
+        self.statu = 0
 
-    def RC(self, alpha=0.1):
-        '''岭回归处理'''
-        self.clf = RidgeClassifier(alpha=alpha, random_state=self.random_seed).fit(self.x_train, self.y_train)
-        self.fitscore()
+    def linedata(self, xlabel, const_param1='C', paramvalue1=1,
+                 const_param2='solver', paramvalue2='saga', target='mean_test_score'):
+        '''按照指定要求绘制线图图像
+        :parameter
 
-    def XGBC(self):
-        '''XGBoost分类器处理'''
-        self.clf = XGBClassifier(max_depth=4, n_jobs=4, n_estimators=1000, random_state=self.random_seed).fit(
-            self.x_train, self.y_train)
-        self.fitscore()
+        xlabel:str
+        可调自变量
 
-    def RF(self):
-        '''随机森林分类器处理'''
-        self.clf = RandomForestClassifier(n_estimators=1000, max_depth=4, n_jobs=4, random_state=self.random_seed).fit(
-            self.x_train, self.y_train)
-        self.fitscore()
+        const_param1:str
+        绘图需要固定的可调参数1
 
-    def MLPC(self):
-        '''多层感知机处理'''
-        self.clf = MLPClassifier(hidden_layer_sizes=3, max_iter=10000, random_state=self.random_seed).fit(
-            self.x_train, self.y_train)
-        self.fitscore()
+        paramvalue1:float/int/str
+        可调参数1的固定值
 
-    def LC(self):
-        '''Lasso分类器处理'''
-        self.clf = Lasso(random_state=self.random_seed).fit(self.x_train, self.y_train)
-        self.fitscore()
+         const_param2:str
+        绘图需要固定的可调参数2
 
-    def EN(self):
-        '''弹性网络处理'''
-        self.clf = ElasticNet(random_state=self.random_seed).fit(self.x_train, self.y_train)
-        self.fitscore()
+        paramvalue2:float/int/str
+        可调参数2的固定值
 
-    def DT(self):
-        '''单颗决策树处理'''
-        self.clf = DecisionTreeClassifier(max_depth=4, min_samples_leaf=30, random_state=self.random_seed,
-                                          max_leaf_nodes=200) \
-            .fit(self.x_train, self.y_train)
-        self.fitscore()
+        target:str
+        目标参数值，将作为纵坐标数值
 
-    def fitscore(self):
-        '''给出模型拟合优度并输出'''
-        self.goodness = self.clf.score(self.x_test, self.y_test)
-        print(self.goodness)
+        :returns
 
-        # todo:分析各个处理算法的可调参数，进行调参分析，以此基础绘制图像
+        linex:float
+        自变量参数值
+
+        liney:float
+        因变量参数值
+
+        condition_label:str
+        条件标签
+        '''
+        result = self.result
+        const_param11 = 'param_' + const_param1
+        const_param22 = 'param_' + const_param2
+        param = 'param_' + xlabel
+        idx1 = result[const_param11] == paramvalue1
+        idx2 = result[const_param22] == paramvalue2
+        idx = ~(~idx1 + ~idx2)
+        linex = result[param][idx]
+        liney = result[target][idx]
+        condition_label = const_param1.capitalize() + '=' + paramvalue1 + '\n' + const_param2.capitalize() + '=' + paramvalue2 + '\n' + param.upper()
+        return linex, liney, condition_label
+
+    def export(self, name='data'):
+        '''输出数据图表,传入参数无文件类型名
+        :parameter
+
+        name:str
+        生成excel文件的名字
+        '''
+        result = DataFrame.from_dict(self.result)
+        name += '.xls'
+        result.to_excel(name)
+
+# todo:需要添加的功能，数据集保存功能，把调整结果导出为文档，以备调参报告使用
