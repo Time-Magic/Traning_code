@@ -1,12 +1,8 @@
 from sklearn.datasets import load_digits
-
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import ParameterGrid, GridSearchCV
-import numpy as np
-from likefunctions_boston import plotlikeconfig
+from sklearn.model_selection import GridSearchCV
 from pandas import DataFrame
-from matplotlib import pyplot as plt
-
+from pandas import read_excel
 class DigitEnsembleClassifier():
     '''手写数据集集成分类器对象
     :parameter
@@ -110,4 +106,53 @@ class DigitEnsembleClassifier():
         name += '.xls'
         result.to_excel(name)
 
+
+def linedata(xlabel, name='test', const_param1='C', paramvalue1=1,
+             const_param2='solver', paramvalue2='saga', target='mean_test_score'):
+    '''按照指定要求绘制线图图像
+    :parameter
+
+    name:str
+    数据文件名
+
+    xlabel:str
+    可调自变量
+
+    const_param1:str
+    绘图需要固定的可调参数1
+
+    paramvalue1:float/int/str
+    可调参数1的固定值
+
+     const_param2:str
+    绘图需要固定的可调参数2
+
+    paramvalue2:float/int/str
+    可调参数2的固定值
+
+    target:str
+    目标参数值，将作为纵坐标数值
+
+    :returns
+
+    linex:float
+    自变量参数值
+
+    liney:float
+    因变量参数值
+
+    condition_label:str
+    条件标签
+    '''
+    result = read_excel(name + '.xls')
+    const_param11 = 'param_' + const_param1
+    const_param22 = 'param_' + const_param2
+    param = 'param_' + xlabel
+    idx1 = result[const_param11] == paramvalue1
+    idx2 = result[const_param22] == paramvalue2
+    idx = ~(~idx1 + ~idx2)
+    linex = result[param][idx]
+    liney = result[target][idx]
+    condition_label = const_param1.capitalize() + '=' + paramvalue1 + '\n' + const_param2.capitalize() + '=' + paramvalue2 + '\n' + target.upper()
+    return linex, liney, condition_label
 # todo:需要添加的功能，数据集保存功能，把调整结果导出为文档，以备调参报告使用
