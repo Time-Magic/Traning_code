@@ -4,7 +4,7 @@ from sklearn.model_selection import GridSearchCV
 from pandas import DataFrame
 from pandas import read_excel
 class DigitEnsembleClassifier():
-    '''手写数据集集成分类器对象
+    '''手写数据集集成分类器对象,传入模型及参数进行网格调参并将网格结果保存为文件，默认保存地址为项目地址
     :parameter
 
     model:str
@@ -33,10 +33,7 @@ class DigitEnsembleClassifier():
         self.param = paramset
         self.cv = cv
         self.normal()
-        self.statu = 1
-        if self.statu != 0:
-            self.fit()
-
+        self.fit()
     def normal(self):
         '''数据预处理部分'''
         std = StandardScaler()
@@ -47,7 +44,6 @@ class DigitEnsembleClassifier():
         self.clf = GridSearchCV(self.model, self.param, cv=self.cv, return_train_score=True, error_score=0, n_jobs=-1)
         self.clf.fit(self.x, self.y)
         self.result = self.clf.cv_results_
-        self.statu = 0
 
     def linedata(self, xlabel, const_param1='C', paramvalue1=1,
                  const_param2='solver', paramvalue2='saga', target='mean_test_score'):
@@ -107,6 +103,7 @@ class DigitEnsembleClassifier():
         result.to_excel(name)
 
 
+
 def linedata(xlabel, name='test', const_param1='C', paramvalue1=1,
              const_param2='solver', paramvalue2='saga', target='mean_test_score'):
     '''按照指定要求绘制线图图像
@@ -150,9 +147,10 @@ def linedata(xlabel, name='test', const_param1='C', paramvalue1=1,
     param = 'param_' + xlabel
     idx1 = result[const_param11] == paramvalue1
     idx2 = result[const_param22] == paramvalue2
-    idx = ~(~idx1 + ~idx2)
+    idx = ~(~idx1 | ~idx2)
     linex = result[param][idx]
     liney = result[target][idx]
-    condition_label = const_param1.capitalize() + '=' + paramvalue1 + '\n' + const_param2.capitalize() + '=' + paramvalue2 + '\n' + target.upper()
+    condition_label = const_param1.capitalize() + '=' + str(paramvalue1) + '\n' + const_param2.capitalize() + '=' + str(
+        paramvalue2) + '\n' + target.upper()
     return linex, liney, condition_label
-# todo:需要添加的功能，数据集保存功能，把调整结果导出为文档，以备调参报告使用
+# todo:类中linedata方法删除，单独作为linedata函数进行使用
