@@ -5,6 +5,21 @@ from scipy.io import loadmat
 
 
 class BearingDataReader:
+    '''用于读取西储大学轴承数据集的类
+        :parameter
+
+        frequency:str
+        目标频率值，取值范围应该在数据集包括的范围内，可选为12k及48k
+
+        location:str
+        传感器的安装位置，可选为Drive或Fan
+
+        length：int
+        从数据集中进行切片的长度，取为整数值
+
+        ratio：float
+        训练集与测试集的比例分配，默认为0.75
+    '''
     def __init__(self, frequency='12k', location='Drive', length=1200, ratio=0.75):
         self.frequency = frequency
         self.location = location
@@ -40,8 +55,8 @@ class BearingDataReader:
         index = list(range(self.X_train.shape[0]))
         random.Random(0).shuffle(index)
         self.X_train = self.X_train[index]
-        self.y_train = tuple(self.y_train[i] for i in index)
+        self.y_train = np.array([self.y_train[i] for i in index])
         index = list(range(self.X_test.shape[0]))
         random.Random(0).shuffle(index)
         self.X_test = self.X_test[index]
-        self.y_test = tuple(self.y_test[i] for i in index)
+        self.y_test = np.array([self.y_test[i] for i in index])
