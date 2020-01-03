@@ -1,0 +1,22 @@
+from likefunctions_boston import plotlikeconfig
+from scipy.signal import stft
+from readdata import BearingDataReader
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from sklearn.linear_model import LogisticRegression
+from sklearn.decomposition import PCA
+from numpy.fft import fft
+from mpl_toolkits.mplot3d import Axes3D
+
+rder = BearingDataReader(length=12000, ratio=0.25)
+f, t, z = stft(rder.X_train[0], fs=12000)
+tt, ff = np.meshgrid(t, f)
+fig = plt.figure(dpi=300)
+ax = Axes3D(fig)
+ax.plot_surface(tt, ff, abs(z), rstride=1, cstride=1, cmap=cm.viridis)
+ax.set_xlabel('Time/s')
+ax.set_ylabel('Frequency/Hz')
+ax.set_zlabel('Strength')
+ax.set_title('Short Time Fourier Transform')
+plt.show()
