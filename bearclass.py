@@ -3,7 +3,7 @@ from readdata import BearingDataReader
 import numpy as np
 from numpy.fft import fft
 from scipy.signal import stft
-from pywt import dwt, idwt
+from pywt import dwt, idwt, wavedec, dwt2
 
 
 class BearingParam(DigitEnsembleClassifier):
@@ -14,21 +14,28 @@ class BearingParam(DigitEnsembleClassifier):
     '''
     def __init__(self, model, dataset='fft', paramset='', cv=3):
         self.model = model
-        origin_data = BearingDataReader()
-        self.x = np.vstack([origin_data.X_train, origin_data.X_test])
-        self.y = np.concatenate([origin_data.y_train, origin_data.y_test])
+        origin_data = BearingDataReader(ratio=0.5)
+        self.x = origin_data.X_train
+        self.y = origin_data.y_train
         self.param = paramset
         self.cv = cv
         self.prepare(kind=dataset)
         self.fit()
 
     def prepare(self, kind='fft'):
+        temp = self.x
         if kind == 'fft':
-            self.x = abs(fft(self.x)[:, :int(self.x.shape[1] / 2)])
+            fft_temp = abs(fft(temp)[:, :int(temp.shape[1] / 2)])
+            dec_temp = wavedec(fft_temp, wavelet='haar', level=2, axis=1)
+            self.x = dec_temp[0]
         if kind == 'stft':
-            f, t, z = stft(self.x)
-            self.x = z.mean(axis=2)
+            f, t, z = stft(temp, fs=12000, nperseg=256)
+            self.x = abs(z).mean(axis=2)
+            dec_temp = wavedec(fft_temp, wavelet='haar', level=1, axis=1)
+            self.x = dec_temp[0]
         if kind == 'wavelet':
-            coffes = dwt(self.x, wavelet='haar', axis=1)
-            self.x = idwt(cA=coffes[0], wavelet='haar', axis=1)
-            self.x = abs(fft(self.x))[:, :int(self.x.shape[1] / 2)]
+            coffes = dwt(temp, wavelet='haar', axis=1)
+            idwt_temp = idwt(cA=coffes[0], cD=None, wavelet='haar', axis=1)
+            ifft_temp = abs(fft(idwt_temp))[:, :int(temp.shape[1] / 2)]
+            dec_temp = wavedec(ifft_temp, wavelet='haar', level=2, axis=1)
+            self.x = dec_temp[0]
