@@ -3,7 +3,7 @@ from readdata import BearingDataReader
 import numpy as np
 from numpy.fft import fft
 from scipy.signal import stft
-from pywt import dwt, idwt, wavedec, dwt2
+from pywt import dwt, idwt, wavedec, wavedec2
 
 
 class BearingParam(DigitEnsembleClassifier):
@@ -30,9 +30,9 @@ class BearingParam(DigitEnsembleClassifier):
             self.x = dec_temp[0]
         if kind == 'stft':
             f, t, z = stft(temp, fs=12000, nperseg=256)
-            self.x = abs(z).mean(axis=2)
-            dec_temp = wavedec(fft_temp, wavelet='haar', level=1, axis=1)
-            self.x = dec_temp[0]
+            temp_z = wavedec2(abs(z), wavelet='haar', level=2)
+            temp_z = np.array(temp_z)
+            self.x = temp_z[0].reshape((temp_z[0].shape[0], -1))
         if kind == 'wavelet':
             coffes = dwt(temp, wavelet='haar', axis=1)
             idwt_temp = idwt(cA=coffes[0], cD=None, wavelet='haar', axis=1)
